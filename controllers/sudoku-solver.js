@@ -3,13 +3,8 @@ class SudokuSolver {
     this.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
   }
   validate(puzzleString) {
-    if (puzzleString.length != 81) {
-      return "RL";
-    }
     if (!/^[0-9\.]*$/.test(puzzleString)) {
       return "NN";
-    } else {
-      return "V";
     }
   }
 
@@ -46,7 +41,7 @@ class SudokuSolver {
     ];
     let row = -1;
     let col = 0;
-    for (let i = 0; 1 < puzzleString.length; i++) {
+    for (let i = 0; i < puzzleString.length; i++) {
       if (i % 9 == 0) {
         row++;
       }
@@ -58,98 +53,87 @@ class SudokuSolver {
     }
     return grid;
   }
+  transformBack(grid) {
+    return grid.flat().join("");
+  }
+  isSafe(grid, row, col, num) {
+    // Check if we find the same num
+    // in the similar row , we
+    // return false
+    for (let x = 0; x <= 8; x++) if (grid[row][x] == num) return false;
 
-  isSafe(board, row, col, num) {
-    // Row has the unique (row-clash)
-    for (let d = 0; d < board.length; d++) {
-      // Check if the number we are trying to
-      // place is already present in
-      // that row, return false;
-      if (board[row][d] == num) {
-        return false;
-      }
-    }
+    // Check if we find the same num
+    // in the similar column ,
+    // we return false
+    for (let x = 0; x <= 8; x++) if (grid[x][col] == num) return false;
 
-    // Column has the unique numbers (column-clash)
-    for (let r = 0; r < board.length; r++) {
-      // Check if the number
-      // we are trying to
-      // place is already present in
-      // that column, return false;
-      if (board[r][col] == num) {
-        return false;
-      }
-    }
-    // Corresponding square has
-    // unique number (box-clash)
-    let sqrt = Math.floor(Math.sqrt(board.length));
-    let boxRowStart = row - (row % sqrt);
-    let boxColStart = col - (col % sqrt);
+    // Check if we find the same num
+    // in the particular 3*3
+    // matrix, we return false
+    let startRow = row - (row % 3),
+      startCol = col - (col % 3);
 
-    for (let r = boxRowStart; r < boxRowStart + sqrt; r++) {
-      for (let d = boxColStart; d < boxColStart + sqrt; d++) {
-        if (board[r][d] == num) {
-          return false;
-        }
-      }
-    }
+    for (let i = 0; i < 3; i++)
+      for (let j = 0; j < 3; j++)
+        if (grid[i + startRow][j + startCol] == num) return false;
 
-    // If there is no clash, it's safe
     return true;
   }
-  solveSudoku(board, n) {
-    let row = -1;
-    let col = -1;
-    let isEmpty = true;
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
-        if (board[i][j] == 0) {
-          row = i;
-          col = j;
+  solveSudoku(grid, row, col) {
+    /* If we have reached the 8th
+       row and 9th column (0
+       indexed matrix) ,
+       we are returning true to avoid further
+       backtracking       */
+    if (row == 9 - 1 && col == 9) return grid;
 
-          // We still have some remaining
-          // missing values in Sudoku
-          isEmpty = false;
-          break;
-        }
-      }
-      if (!isEmpty) {
-        break;
-      }
+    // Check if column value  becomes 9 ,
+    // we move to next row
+    // and column start from 0
+    if (col == 9) {
+      row++;
+      col = 0;
     }
 
-    // No empty space left
-    if (isEmpty) {
-      return true;
-    }
+    // Check if the current position
+    // of the grid already
+    // contains value >0, we iterate
+    // for next column
+    if (grid[row][col] != 0) return this.solveSudoku(grid, row, col + 1);
 
-    // Else for each-row backtrack
-    for (let num = 1; num <= n; num++) {
-      if (isSafe(board, row, col, num)) {
-        board[row][col] = num;
-        if (solveSudoku(board, n)) {
-          // print(board, n);
-          return true;
-        } else {
-          // Replace it
-          board[row][col] = 0;
-        }
+    for (let num = 1; num < 10; num++) {
+      // Check if it is safe to place
+      // the num (1-9)  in the given
+      // row ,col ->we move to next column
+      if (this.isSafe(grid, row, col, num)) {
+        /*  assigning the num in the current
+            (row,col)  position of the grid and
+            assuming our assigned num in the position
+            is correct */
+        grid[row][col] = num;
+
+        // Checking for next
+        // possibility with next column
+        if (this.solveSudoku(grid, row, col + 1)) return grid;
       }
+
+      /* removing the assigned num , since our
+           assumption was wrong , and we go for next
+           assumption with diff num value   */
+      grid[row][col] = 0;
     }
     return false;
   }
   solve(puzzleString) {
     const val = this.validate(puzzleString);
-    if (!puzzleString) {
-      return "Required field missing";
+
+    let grid = this.transform(puzzleString);
+    let solved = this.solveSudoku(grid, 0, 0);
+    if (!solved) {
+      return false;
     }
-    if (val == "RL") {
-      return "Expected puzzle to be 81 characters long";
-    } else if (val == "NN") {
-      return "Invalid characters in puzzle";
-    } else if (val == "V") {
-    }
-    return coords;
+    const solvedString = this.transformBack(solved);
+    return solvedString;
   }
 }
 

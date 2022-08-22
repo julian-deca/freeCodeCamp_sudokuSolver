@@ -9,6 +9,20 @@ module.exports = function (app) {
 
   app.route("/api/solve").post((req, res) => {
     const string = req.body.puzzle;
-    console.log(solver.solve(string));
+    if (!string) {
+      res.json({ error: "Required field missing" });
+      return;
+    } else if (solver.validate(string) == "NN") {
+      res.json({ error: "Invalid characters in puzzle" });
+      return;
+    } else if (string.length != 81) {
+      res.json({ error: "Expected puzzle to be 81 characters long" });
+      return;
+    }
+    if (!solver.solve(string)) {
+      res.json({ error: "Puzzle cannot be solved" });
+      return;
+    }
+    res.json({ solution: solver.solve(string) });
   });
 };
