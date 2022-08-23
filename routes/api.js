@@ -30,7 +30,6 @@ module.exports = function (app) {
       res.json({ error: "Puzzle cannot be solved" });
       return;
     }
-    console.log(value);
     let column = solver.convertCoords(coord)[1];
     let row = solver.convertCoords(coord)[0];
     let result = solver.check(string, row, column, value);
