@@ -3,6 +3,9 @@ class SudokuSolver {
     if (!/^[0-9\.]*$/.test(puzzleString)) {
       return "NN";
     }
+    if (puzzleString.length != 81) {
+      return "WL";
+    }
   }
 
   convertCoords(coord) {
