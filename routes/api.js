@@ -5,7 +5,32 @@ const SudokuSolver = require("../controllers/sudoku-solver.js");
 module.exports = function (app) {
   let solver = new SudokuSolver();
 
-  app.route("/api/check").post((req, res) => {});
+  app.route("/api/check").post((req, res) => {
+    const string = req.body.puzzle;
+    const coord = req.body.coordinate;
+    const value = req.body.value;
+    if (!string || !coord || !value) {
+      res.json({ error: "Required field missing" });
+      return;
+    } else if (solver.validate(string) == "NN") {
+      res.json({ error: "Invalid characters in puzzle" });
+      return;
+    } else if (string.length != 81) {
+      res.json({ error: "Expected puzzle to be 81 characters long" });
+      return;
+    } else if (value < 1 || value > 9) {
+      res.json({ error: "Invalid value" });
+      return;
+    }
+    if (!solver.convertCoords(coord)) {
+      res.json({ error: "Invalid coordinate" });
+      return;
+    }
+    let column = solver.convertCoords(coord)[0];
+    let row = solver.convertCoords(coord)[1];
+
+    console.log(column, row);
+  });
 
   app.route("/api/solve").post((req, res) => {
     const string = req.body.puzzle;

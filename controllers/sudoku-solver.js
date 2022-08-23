@@ -21,12 +21,24 @@ class SudokuSolver {
     return coords;
   }
 
+  convertCoords(coord) {
+    if (coord.length != 2 || typeof coord != "string") {
+      return false;
+    }
+    let letter = coord.slice(0, 1).toUpperCase();
+    let number = Number(coord.slice(1));
+    let fNumber = letter.charCodeAt(0) - 64;
+    if (fNumber < 1 || fNumber > 9) {
+      return false;
+    }
+    return [fNumber, number];
+  }
   checkRowPlacement(puzzleString, row, column, value) {}
 
   checkColPlacement(puzzleString, row, column, value) {}
 
   checkRegionPlacement(puzzleString, row, column, value) {}
-
+  check(puzzleString, row, column, value) {}
   transform(puzzleString) {
     let grid = [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
