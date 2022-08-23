@@ -28,7 +28,7 @@ class SudokuSolver {
     let letter = coord.slice(0, 1).toUpperCase();
     let number = Number(coord.slice(1));
     let fNumber = letter.charCodeAt(0) - 64;
-    if (fNumber < 1 || fNumber > 9) {
+    if (fNumber < 1 || fNumber > 9 || number == 0) {
       return false;
     }
     return [fNumber, number];

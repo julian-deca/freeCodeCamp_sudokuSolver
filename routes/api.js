@@ -10,7 +10,7 @@ module.exports = function (app) {
     const coord = req.body.coordinate;
     const value = req.body.value;
     if (!string || !coord || !value) {
-      res.json({ error: "Required field missing" });
+      res.json({ error: "Required field(s) missing" });
       return;
     } else if (solver.validate(string) == "NN") {
       res.json({ error: "Invalid characters in puzzle" });
@@ -18,7 +18,7 @@ module.exports = function (app) {
     } else if (string.length != 81) {
       res.json({ error: "Expected puzzle to be 81 characters long" });
       return;
-    } else if (value < 1 || value > 9) {
+    } else if (Number(value) < 1 || Number(value) > 9 || !Number(value)) {
       res.json({ error: "Invalid value" });
       return;
     }
@@ -30,6 +30,7 @@ module.exports = function (app) {
       res.json({ error: "Puzzle cannot be solved" });
       return;
     }
+    console.log(value);
     let column = solver.convertCoords(coord)[1];
     let row = solver.convertCoords(coord)[0];
     let result = solver.check(string, row, column, value);
