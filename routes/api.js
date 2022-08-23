@@ -26,10 +26,14 @@ module.exports = function (app) {
       res.json({ error: "Invalid coordinate" });
       return;
     }
-    let column = solver.convertCoords(coord)[0];
-    let row = solver.convertCoords(coord)[1];
-
-    console.log(column, row);
+    if (!solver.solve(string)) {
+      res.json({ error: "Puzzle cannot be solved" });
+      return;
+    }
+    let column = solver.convertCoords(coord)[1];
+    let row = solver.convertCoords(coord)[0];
+    let result = solver.check(string, row, column, value);
+    res.json(result);
   });
 
   app.route("/api/solve").post((req, res) => {

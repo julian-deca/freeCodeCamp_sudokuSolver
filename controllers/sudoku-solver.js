@@ -33,12 +33,63 @@ class SudokuSolver {
     }
     return [fNumber, number];
   }
-  checkRowPlacement(puzzleString, row, column, value) {}
+  checkRowPlacement(grid, row, column, value) {
+    for (let i = 0; i < 8; i++) {
+      if (Number(grid[i][column]) == Number(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-  checkColPlacement(puzzleString, row, column, value) {}
+  checkColPlacement(grid, row, column, value) {
+    for (let i = 0; i < 8; i++) {
+      if (grid[row][i] == value) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-  checkRegionPlacement(puzzleString, row, column, value) {}
-  check(puzzleString, row, column, value) {}
+  checkRegionPlacement(grid, row, column, value) {
+    let sRow = Math.ceil((row + 1) / 3) - 1;
+    let sCol = Math.ceil((column + 1) / 3) - 1;
+    for (let i = sRow; i < sRow + 3; i++) {
+      for (let j = sCol; j < sCol + 3; j++) {
+        if (grid[i][j] == value) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  check(puzzleString, row, column, value) {
+    let grid = this.transform(puzzleString);
+    let nRow = row - 1;
+    let nCol = column - 1;
+    if (grid[nRow][nCol] == value) {
+      return { valid: true };
+    } else {
+      let cRow = this.checkRowPlacement(grid, nRow, nCol, value);
+      let cCol = this.checkColPlacement(grid, nRow, nCol, value);
+      let cReg = this.checkRegionPlacement(grid, nRow, nCol, value);
+      let arr = [];
+      if (cRow) {
+        arr.push("row");
+      }
+      if (cCol) {
+        arr.push("column");
+      }
+      if (cReg) {
+        arr.push("region");
+      }
+      if (arr.length < 1) {
+        return { valid: true };
+      }
+      return { valid: false, conflict: arr };
+    }
+  }
   transform(puzzleString) {
     let grid = [
       [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -137,8 +188,6 @@ class SudokuSolver {
     return false;
   }
   solve(puzzleString) {
-    const val = this.validate(puzzleString);
-
     let grid = this.transform(puzzleString);
     let solved = this.solveSudoku(grid, 0, 0);
     if (!solved) {
